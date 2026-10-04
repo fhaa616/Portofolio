@@ -32,12 +32,11 @@ const FILES = {
     "-----            ------    ----------",
     "Python           SSR       Scripting, otomasi, dan olah data",
     "JavaScript       SSR       React, Vite, dan web interaktif",
-    "C++              Normal    Struktur data dan algoritma",
   ],
   "education.txt": [
     "Riwayat Pendidikan:",
     "-------------------",
-    "[ 2026 - Sekarang ] S1 Informatika",
+    "[ 2026 - Sekarang ] Mahasiswa Program Studi Informatika",
     "                    Institut Teknologi Kalimantan (ITK), Balikpapan",
     "",
     "[ 2023 - 2026     ] Sekolah Menengah Kejuruan (SMK)",
