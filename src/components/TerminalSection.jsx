@@ -41,7 +41,7 @@ const FILES = {
     "                    Institut Teknologi Kalimantan (ITK), Balikpapan",
     "",
     "[ 2023 - 2026     ] Sekolah Menengah Kejuruan (SMK)",
-    "                    Jurusan [Pengambangan Perangkat Lunak dan Gim], [SMKN 7 Samarinda]",
+    "                    Jurusan [Pengembangan Perangkat Lunak dan Gim], [SMKN 7 Samarinda]",
   ],
   "projects.txt": [
     "[1] Portofolio interaktif  (React, Vite, Tailwind CSS, lucide-react)",
