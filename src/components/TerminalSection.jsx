@@ -311,7 +311,7 @@ function execute(raw) {
     case "whoami":
       return {
         output: [
-          "Alfha, Mahasiswa Informatika Institut, Teknologi Kalimantan.",
+          "Alfha, Mahasiswa Informatika, Institut Teknologi Kalimantan.",
         ],
       };
     case "about":
