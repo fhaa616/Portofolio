@@ -35,7 +35,6 @@ const FILES = {
     "-----            ------    ----------",
     "Python           SSR       Scripting, otomasi, dan olah data",
     "JavaScript       SSR       React, Vite, dan web interaktif",
-    "C++              Normal    Struktur data dan algoritma",
   ],
   "education.txt": [
     "Riwayat Pendidikan:",
@@ -44,7 +43,7 @@ const FILES = {
     "                    Institut Teknologi Kalimantan (ITK), Balikpapan",
     "",
     "[ 2023 - 2026     ] Sekolah Menengah Kejuruan (SMK)",
-    "                    Jurusan [Pengambangan Perangkat Lunak dan Gim], [SMKN 7 Samarinda]",
+    "                    Jurusan [Pengembangan Perangkat Lunak dan Gim], [SMKN 7 Samarinda]",
   ],
   "projects.txt": [
     "[1] Portofolio interaktif  (React, Vite, Tailwind CSS, lucide-react)",
@@ -308,7 +307,7 @@ function execute(raw) {
     case "whoami":
       return {
         output: [
-          "Alfha, Mahasiswa Informatika Institut, Teknologi Kalimantan.",
+          "Alfha, Mahasiswa Informatika, Institut Teknologi Kalimantan.",
         ],
       };
     case "about":

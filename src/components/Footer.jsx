@@ -34,7 +34,6 @@ const SOCIALS = [
   { id: 'discord', label: 'Discord (klik untuk salin username)', Icon: FaDiscord, copy: 'alfhaaaaaa', tone: 'orange' },
   { id: 'steam', label: 'Steam', Icon: FaSteam, href: 'https://steamcommunity.com/id/Keyshaaaa/', tone: 'sky' },
   { id: 'whatsapp', label: 'WhatsApp', Icon: FaWhatsapp, href: 'https://wa.me/6282254334950', tone: 'pink' },
-  { id: 'email', label: 'Email', Icon: FaEnvelope, href: `mailto:${EMAIL}`, tone: 'orange' },
 ];
 
 const iconClass =
