@@ -126,11 +126,13 @@ async function deliver(data) {
   )}&body=${encodeURIComponent(body)}`;
 }
 
+// text-base di HP (16px) mencegah iPhone memperbesar halaman saat input difokus
 const inputClass =
-  "w-full rounded-lg border-2 border-slate-200 bg-white px-3 py-2 text-slate-800 outline-hidden transition focus:border-sky-400";
+  "w-full rounded-lg border-2 border-slate-200 bg-white px-3 py-1.5 text-base text-slate-800 outline-hidden transition focus:border-sky-400 sm:text-sm";
+const labelClass = "mb-0.5 block text-xs font-semibold text-slate-600";
 
 const socialRowClass =
-  "group flex w-full items-center gap-3 border-2 border-slate-200 bg-white p-2 pr-3 text-left transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500";
+  "group flex w-full items-center gap-3 border-2 border-slate-200 bg-white p-1.5 pr-3 text-left transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500";
 
 function SocialRow({ social, copied, onCopy }) {
   const { Icon, label, handle, href, color, hover } = social;
@@ -138,15 +140,15 @@ function SocialRow({ social, copied, onCopy }) {
   const content = (
     <>
       <span
-        className={`flex h-10 w-10 shrink-0 items-center justify-center text-white transition group-hover:scale-105 ${color}`}
+        className={`flex h-9 w-9 shrink-0 items-center justify-center text-white transition group-hover:scale-105 ${color}`}
       >
-        <Icon size={20} />
+        <Icon size={18} />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-xs font-bold tracking-wide text-slate-400 uppercase">
+        <span className="block text-[10px] leading-tight font-bold tracking-wide text-slate-400 uppercase">
           {label}
         </span>
-        <span className="block truncate font-semibold text-slate-800">
+        <span className="block truncate text-sm font-semibold text-slate-800">
           {handle}
         </span>
       </span>
@@ -297,39 +299,41 @@ export default function MomoTalkContact() {
   };
 
   return (
-    <SectionShell id="contact" title="KONTAK">
-      <div className="grid gap-8 lg:grid-cols-5">
+    <SectionShell id="contact" title="KONTAK" fit>
+      <div className="grid gap-6 lg:grid-cols-5">
         {/* Informasi kontak */}
         <div className="self-start drop-shadow-[0_0_15px_rgba(244,114,182,0.6)] lg:col-span-2">
-          <div className="clip-chamfered border-4 border-pink-400 bg-white p-6 pb-10">
-            <h3 className="mb-1 text-xl font-extrabold text-slate-800">
+          <div className="clip-chamfered border-4 border-pink-400 bg-white p-5 pb-8">
+            <h3 className="text-lg font-extrabold text-slate-800">
               Informasi Kontak
             </h3>
-            <p className="mb-6 text-sm text-slate-500">
+            <p className="mb-4 text-sm text-slate-500">
               Uhe~ Jangan ragu menyapa, Sensei!
             </p>
 
-            <ul className="flex flex-col gap-5">
+            <ul className="flex flex-col gap-3">
               {CONTACTS.map(({ Icon, label, value, href, color }) => (
-                <li key={label} className="flex items-center gap-4">
+                <li key={label} className="flex items-center gap-3">
                   <span
-                    className={`flex h-11 w-11 shrink-0 items-center justify-center text-white ${color}`}
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center text-white ${color}`}
                   >
-                    <Icon size={20} />
+                    <Icon size={18} />
                   </span>
                   <div className="min-w-0">
-                    <p className="text-xs font-bold tracking-wide text-slate-400 uppercase">
+                    <p className="text-[10px] leading-tight font-bold tracking-wide text-slate-400 uppercase">
                       {label}
                     </p>
                     {href ? (
                       <a
                         href={href}
-                        className="font-semibold break-all text-slate-800 transition hover:text-sky-500"
+                        className="text-sm font-semibold break-all text-slate-800 transition hover:text-sky-500"
                       >
                         {value}
                       </a>
                     ) : (
-                      <p className="font-semibold text-slate-800">{value}</p>
+                      <p className="text-sm font-semibold text-slate-800">
+                        {value}
+                      </p>
                     )}
                   </div>
                 </li>
@@ -337,11 +341,11 @@ export default function MomoTalkContact() {
             </ul>
 
             {/* Media sosial */}
-            <div className="mt-6 border-t-2 border-dashed border-pink-200 pt-5">
-              <p className="mb-3 text-sm font-bold text-slate-600">
+            <div className="mt-4 border-t-2 border-dashed border-pink-200 pt-4">
+              <p className="mb-2 text-sm font-bold text-slate-600">
                 Atau temui Fhaa di sini
               </p>
-              <ul className="flex flex-col gap-2.5">
+              <ul className="flex flex-col gap-2">
                 {SOCIALS.map((social) => (
                   <li key={social.id}>
                     <SocialRow
@@ -364,8 +368,8 @@ export default function MomoTalkContact() {
         <div className="drop-shadow-[0_8px_20px_rgba(14,165,233,0.25)] lg:col-span-3">
           <div className="clip-chamfered overflow-hidden border-4 border-sky-400 bg-white">
             {/* Header */}
-            <header className="flex items-center gap-3 bg-sky-500 px-4 py-3 text-white">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-pink-300 font-bold text-white">
+            <header className="flex items-center gap-3 bg-sky-500 px-4 py-2.5 text-white">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-pink-300 font-bold text-white">
                 F
               </div>
               <div>
@@ -377,12 +381,12 @@ export default function MomoTalkContact() {
             {/* History chat */}
             <div
               ref={scrollRef}
-              className="flex h-56 flex-col gap-3 overflow-y-auto bg-slate-100 p-4"
+              className="flex h-28 flex-col gap-2 overflow-y-auto bg-slate-100 p-3"
             >
               {messages.map((m) =>
                 m.sender === "user" ? (
                   <div key={m.id} className="flex justify-end">
-                    <p className="max-w-[80%] rounded-2xl rounded-br-sm bg-sky-500 px-4 py-2 text-white">
+                    <p className="max-w-[80%] rounded-2xl rounded-br-sm bg-sky-500 px-3 py-1.5 text-sm text-white">
                       {m.subject && (
                         <span className="block font-bold">{m.subject}</span>
                       )}
@@ -393,7 +397,7 @@ export default function MomoTalkContact() {
                   </div>
                 ) : (
                   <div key={m.id} className="flex justify-start">
-                    <p className="max-w-[80%] rounded-2xl rounded-bl-sm bg-white px-4 py-2 text-slate-700 shadow-sm">
+                    <p className="max-w-[80%] rounded-2xl rounded-bl-sm bg-white px-3 py-1.5 text-sm text-slate-700 shadow-sm">
                       {m.text}
                     </p>
                   </div>
@@ -402,7 +406,7 @@ export default function MomoTalkContact() {
 
               {isTyping && (
                 <div className="flex justify-start">
-                  <p className="animate-pulse rounded-2xl rounded-bl-sm bg-white px-4 py-2 text-sm text-slate-400 italic shadow-sm">
+                  <p className="animate-pulse rounded-2xl rounded-bl-sm bg-white px-3 py-1.5 text-sm text-slate-400 italic shadow-sm">
                     Fhaa is typing...
                   </p>
                 </div>
@@ -412,14 +416,11 @@ export default function MomoTalkContact() {
             {/* Form */}
             <form
               onSubmit={handleSubmit}
-              className="flex flex-col gap-3 border-t-2 border-sky-100 bg-white p-4 pb-8"
+              className="flex flex-col gap-2 border-t-2 border-sky-100 bg-white p-3 pb-6"
             >
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-2 sm:grid-cols-2">
                 <div>
-                  <label
-                    htmlFor="c-name"
-                    className="mb-1 block text-sm font-semibold text-slate-600"
-                  >
+                  <label htmlFor="c-name" className={labelClass}>
                     Nama Anda
                   </label>
                   <input
@@ -435,10 +436,7 @@ export default function MomoTalkContact() {
                   />
                 </div>
                 <div>
-                  <label
-                    htmlFor="c-email"
-                    className="mb-1 block text-sm font-semibold text-slate-600"
-                  >
+                  <label htmlFor="c-email" className={labelClass}>
                     Email Anda
                   </label>
                   <input
@@ -456,10 +454,7 @@ export default function MomoTalkContact() {
               </div>
 
               <div>
-                <label
-                  htmlFor="c-subject"
-                  className="mb-1 block text-sm font-semibold text-slate-600"
-                >
+                <label htmlFor="c-subject" className={labelClass}>
                   Subjek
                 </label>
                 <input
@@ -475,17 +470,14 @@ export default function MomoTalkContact() {
               </div>
 
               <div>
-                <label
-                  htmlFor="c-message"
-                  className="mb-1 block text-sm font-semibold text-slate-600"
-                >
+                <label htmlFor="c-message" className={labelClass}>
                   Pesan Anda
                 </label>
                 <textarea
                   id="c-message"
                   name="message"
                   required
-                  rows={4}
+                  rows={3}
                   value={form.message}
                   onChange={handleChange}
                   placeholder="Pesan Anda"
@@ -514,7 +506,7 @@ export default function MomoTalkContact() {
               <button
                 type="submit"
                 disabled={isTyping}
-                className="flex items-center justify-center gap-2 rounded-lg bg-pink-400 px-6 py-3 font-bold text-white transition hover:bg-pink-500 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
+                className="flex items-center justify-center gap-2 rounded-lg bg-pink-400 px-6 py-2.5 font-bold text-white transition hover:bg-pink-500 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <Send size={18} />
                 {isTyping ? "Mengirim..." : "Kirim"}

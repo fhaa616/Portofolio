@@ -13,12 +13,15 @@ import {
   MessageCircle,
 } from "lucide-react";
 import SectionShell from "./SectionShell";
-import { SKILLS, SORTED_SKILLS, getSkillIcon } from "./Skills";
+import { SKILLS, SORTED_SKILLS } from "./Skills";
 import hoshinoAvatar from "../assets/fotoku.jpeg";
 
 const PATH = "C:\\Users\\Alfha";
 const EMAIL = "alfhafairuz08@gmail.com";
 const LOCATION = "Balikpapan";
+
+// Perangkat sentuh (HP/tablet): jangan paksa keyboard muncul
+const isTouch = () => window.matchMedia("(pointer: coarse)").matches;
 
 // ---------- Konten ----------
 const FILES = {
@@ -37,7 +40,7 @@ const FILES = {
   "education.txt": [
     "Riwayat Pendidikan:",
     "-------------------",
-    "[ 2026 - Sekarang ] S1 Informatika",
+    "[ 2026 - Sekarang ] Mahasiswa Program Studi Informatika",
     "                    Institut Teknologi Kalimantan (ITK), Balikpapan",
     "",
     "[ 2023 - 2026     ] Sekolah Menengah Kejuruan (SMK)",
@@ -83,12 +86,14 @@ const ALIASES = {
   "write-output": "echo",
 };
 
-// Pool gacha mengikuti data skill bersama (../data/skills), jadi otomatis sama dengan GachaSkills
-const GACHA_STARS = { SSR: 3, SR: 2, Normal: 1 };
+// Jumlah bintang per rarity. SAMA dengan GachaSkills (SSR 3, SR 2, Normal 1),
+// dipakai oleh perintah `gacha` dan kartu `skills`.
+const RARITY_STARS = { SSR: 3, SR: 2, Normal: 1 };
+
 const GACHA_POOL = SKILLS.map(({ name, rarity }) => ({
   name,
   rarity,
-  stars: GACHA_STARS[rarity],
+  stars: RARITY_STARS[rarity],
 }));
 
 const WELCOME = [
@@ -157,11 +162,11 @@ const ABOUT_ROWS = [
   ["Location", LOCATION],
 ];
 
-// Khusus tampilan command `skills`. Daftar skill diambil dari ../data/skills.
-const TERMINAL_RARITY = {
-  SSR: { stars: 5, badge: "bg-pink-400 text-white" },
-  SR: { stars: 4, badge: "bg-amber-400 text-slate-900" },
-  Normal: { stars: 3, badge: "bg-sky-400 text-white" },
+// Warna lencana rarity pada kartu `skills`
+const TERMINAL_BADGE = {
+  SSR: "bg-pink-400 text-white",
+  SR: "bg-amber-400 text-slate-900",
+  Normal: "bg-sky-400 text-white",
 };
 
 function AboutCard() {
@@ -197,50 +202,42 @@ function AboutCard() {
   );
 }
 
+// Kartu skill: tanpa logo, bintang mengikuti rarity (sama dengan GachaSkills)
 function SkillsCard() {
   return (
     <div className="my-2 grid grid-cols-2 gap-3 sm:grid-cols-3">
       {SORTED_SKILLS.map((skill) => {
-        const { stars, badge } = TERMINAL_RARITY[skill.rarity];
-        const icon = getSkillIcon(skill);
+        const stars = RARITY_STARS[skill.rarity];
         return (
           <div
             key={skill.name}
-            className="flex flex-col gap-1.5 border-4 border-black bg-white p-2.5 text-slate-900 shadow-[4px_4px_0_0_#000]"
+            className="flex flex-col gap-1 border-4 border-black bg-white p-2.5 text-slate-900 shadow-[4px_4px_0_0_#000]"
           >
-            <span
-              className={`self-start border-2 border-black px-1.5 text-xs font-extrabold ${badge}`}
-            >
-              {skill.rarity}
-            </span>
-            <div className="flex items-center gap-2">
-              {icon && (
-                <img
-                  src={icon}
-                  alt=""
-                  className="h-6 w-6 shrink-0 object-contain"
-                />
-              )}
-              <p className="text-base leading-tight font-black">{skill.name}</p>
+            <div className="flex items-center justify-between gap-1">
+              <span
+                className={`border-2 border-black px-1.5 text-xs font-extrabold ${TERMINAL_BADGE[skill.rarity]}`}
+              >
+                {skill.rarity}
+              </span>
+              <div
+                className="flex gap-0.5"
+                role="img"
+                aria-label={`${stars} bintang`}
+              >
+                {Array.from({ length: stars }).map((_, n) => (
+                  <Star
+                    key={n}
+                    size={14}
+                    strokeWidth={2.5}
+                    className="fill-yellow-300 text-black"
+                  />
+                ))}
+              </div>
             </div>
-            <div
-              className="flex gap-0.5"
-              role="img"
-              aria-label={`${stars} dari 5 bintang`}
-            >
-              {Array.from({ length: 5 }).map((_, n) => (
-                <Star
-                  key={n}
-                  size={14}
-                  strokeWidth={2.5}
-                  className={
-                    n < stars
-                      ? "fill-yellow-300 text-black"
-                      : "fill-white text-slate-300"
-                  }
-                />
-              ))}
-            </div>
+            <p className="text-base leading-tight font-black">{skill.name}</p>
+            <p className="text-xs font-bold tracking-wide text-slate-400 uppercase">
+              {skill.cat}
+            </p>
           </div>
         );
       })}
@@ -390,11 +387,14 @@ function execute(raw) {
 }
 
 // ---------- Tampilan kecil ----------
+// Di HP path disingkat jadi "PS>" supaya ruang ketik tidak habis
 function Prompt() {
   return (
     <span className="whitespace-pre">
       <span className="font-bold text-sky-300">PS </span>
-      <span className="text-slate-100">{PATH}&gt; </span>
+      <span className="text-slate-100">
+        <span className="hidden sm:inline">{PATH}</span>&gt;{" "}
+      </span>
     </span>
   );
 }
@@ -418,13 +418,32 @@ export default function TerminalSection() {
   const [input, setInput] = useState("");
   const scrollRef = useRef(null);
   const inputRef = useRef(null);
+  const lastEntryRef = useRef(null);
   const cmdHistoryRef = useRef([]); // untuk navigasi panah atas/bawah
   const cmdIndexRef = useRef(0);
 
-  // Auto-scroll ke baris paling bawah setiap ada output baru
+  // Setelah command dijalankan:
+  // - output pendek  -> gulir ke bawah (baris prompt terlihat)
+  // - output panjang -> gulir ke AWAL output (mis. `skills` dibaca dari atas)
   useEffect(() => {
     const el = scrollRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
+    if (!el) return;
+    const last = lastEntryRef.current;
+
+    if (!last) {
+      el.scrollTo({ top: 0 });
+      return;
+    }
+
+    const top =
+      last.getBoundingClientRect().top -
+      el.getBoundingClientRect().top +
+      el.scrollTop;
+    const isTall = last.offsetHeight + 80 > el.clientHeight;
+    el.scrollTo({
+      top: isTall ? Math.max(top - 8, 0) : el.scrollHeight,
+      behavior: "smooth",
+    });
   }, [history]);
 
   const runCommand = (raw) => {
@@ -454,6 +473,8 @@ export default function TerminalSection() {
     e.preventDefault();
     runCommand(input);
     setInput("");
+    // Di HP: tutup keyboard setelah Enter supaya output terlihat penuh
+    if (isTouch()) inputRef.current?.blur();
   };
 
   // Panah atas/bawah: menelusuri command sebelumnya
@@ -483,16 +504,17 @@ export default function TerminalSection() {
       return;
     }
     runCommand(cmd);
-    inputRef.current?.focus();
+    // Di desktop fokus kembali ke input; di HP biarkan keyboard tertutup
+    if (!isTouch()) inputRef.current?.focus();
   };
 
   return (
-    <SectionShell id="terminal" title="TENTANG SAYA">
-      <div className="flex items-start gap-4 sm:gap-6">
-        {/* Sidebar navigasi cepat */}
+    <SectionShell id="terminal" title="TENTANG SAYA" fit>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-6">
+        {/* Navigasi cepat: baris di HP, kolom di layar lebar */}
         <nav
           aria-label="Navigasi cepat terminal"
-          className="flex flex-col gap-3"
+          className="flex flex-row justify-center gap-2 sm:flex-col sm:justify-start sm:gap-3"
         >
           {SIDEBAR.map(({ key, label, Icon, style }) => (
             <button
@@ -501,9 +523,9 @@ export default function TerminalSection() {
               onClick={() => handleShortcut(key)}
               aria-label={label}
               title={label}
-              className={`flex h-12 w-12 items-center justify-center border-2 border-sky-500 drop-shadow-[0_0_8px_rgba(14,165,233,0.45)] transition hover:scale-110 hover:drop-shadow-[0_0_12px_rgba(244,114,182,0.8)] active:scale-95 sm:h-14 sm:w-14 ${style}`}
+              className={`flex h-11 w-11 items-center justify-center border-2 border-sky-500 drop-shadow-[0_0_8px_rgba(14,165,233,0.45)] transition hover:scale-110 hover:drop-shadow-[0_0_12px_rgba(244,114,182,0.8)] active:scale-95 sm:h-14 sm:w-14 ${style}`}
             >
-              <Icon size={24} strokeWidth={2.5} />
+              <Icon size={22} strokeWidth={2.5} />
             </button>
           ))}
         </nav>
@@ -527,11 +549,13 @@ export default function TerminalSection() {
                 </div>
               </div>
 
-              {/* Isi terminal */}
+              {/* Isi terminal. Tinggi mengikuti tinggi layar agar tidak kepotong */}
               <div
                 ref={scrollRef}
-                onClick={() => inputRef.current?.focus()}
-                className="h-112 cursor-text overflow-y-auto p-4 pb-8 font-mono text-sm text-slate-100 sm:text-base"
+                onClick={() => {
+                  if (!isTouch()) inputRef.current?.focus();
+                }}
+                className="h-[min(28rem,55vh)] min-h-72 cursor-text overflow-y-auto p-3 pb-8 font-mono text-xs text-slate-100 sm:p-4 sm:pb-8 sm:text-base"
               >
                 {/* Pesan sambutan statis */}
                 <div className="mb-4 text-slate-200">
@@ -546,8 +570,12 @@ export default function TerminalSection() {
                 </div>
 
                 {/* Riwayat command */}
-                {history.map((entry) => (
-                  <div key={entry.id} className="mb-3">
+                {history.map((entry, idx) => (
+                  <div
+                    key={entry.id}
+                    ref={idx === history.length - 1 ? lastEntryRef : null}
+                    className="mb-3"
+                  >
                     <p className="wrap-break-word">
                       <Prompt />
                       <CommandText text={entry.command} />
@@ -571,10 +599,11 @@ export default function TerminalSection() {
                 ))}
 
                 {/* Baris input aktif */}
-                <form onSubmit={handleSubmit} className="flex">
+                <form onSubmit={handleSubmit} className="flex items-baseline">
                   <label htmlFor="terminal-input">
                     <Prompt />
                   </label>
+                  {/* text-base (16px) mencegah iPhone memperbesar halaman saat input difokus */}
                   <input
                     id="terminal-input"
                     ref={inputRef}
@@ -582,10 +611,12 @@ export default function TerminalSection() {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
+                    enterKeyHint="go"
                     autoComplete="off"
                     autoCapitalize="off"
+                    autoCorrect="off"
                     spellCheck={false}
-                    className="min-w-0 flex-1 bg-transparent text-yellow-300 caret-white outline-hidden"
+                    className="min-w-0 flex-1 bg-transparent text-base text-yellow-300 caret-white outline-hidden"
                   />
                 </form>
               </div>
@@ -593,13 +624,13 @@ export default function TerminalSection() {
           </div>
 
           {/* Chip perintah cepat */}
-          <div className="mt-5 flex flex-wrap gap-2">
+          <div className="mt-4 flex flex-wrap gap-2">
             {CHIPS.map((c) => (
               <button
                 key={c}
                 type="button"
                 onClick={() => handleShortcut(c)}
-                className="rounded-full border-2 border-sky-500 bg-white px-4 py-1 font-mono text-sm font-semibold text-sky-600 transition hover:bg-sky-500 hover:text-white"
+                className="rounded-full border-2 border-sky-500 bg-white px-3 py-0.5 font-mono text-xs font-semibold text-sky-600 transition hover:bg-sky-500 hover:text-white sm:px-4 sm:py-1 sm:text-sm"
               >
                 {c}
               </button>
