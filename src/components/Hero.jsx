@@ -386,7 +386,7 @@ export default function Hero() {
         </div>
 
         <p className="badge-in relative mt-8 border-2 border-sky-500 bg-surface px-5 py-1.5 text-base font-bold text-sky-600 sm:text-xl dark:text-sky-300">
-          Mahasiswa Informatika ITK
+          Programmer | Web Developer
         </p>
 
         {/* Wrapper membawa glow, elemen dalam membawa clip-path */}
