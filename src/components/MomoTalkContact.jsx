@@ -13,10 +13,7 @@ import SectionShell from "./SectionShell";
 
 const EMAIL = "alfhafairuz08@gmail.com";
 
-// Access key Web3Forms (gratis di https://web3forms.com). Disimpan di file .env.local:
-//   VITE_WEB3FORMS_KEY=kunci-kamu
-// Kalau kosong, tombol Kirim membuka aplikasi email sebagai cadangan.
-const WEB3FORMS_KEY = import.meta.env.VITE_WEB3FORMS_KEY;
+const WEB3FORMS_KEY = (import.meta.env.VITE_WEB3FORMS_KEY ?? "").trim();
 const WEB3FORMS_URL = "https://api.web3forms.com/submit";
 
 const CONTACTS = [
@@ -213,34 +210,43 @@ async function validateEmail(email) {
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function deliver(data) {
-  if (WEB3FORMS_KEY) {
-    const res = await fetch(WEB3FORMS_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({
-        access_key: WEB3FORMS_KEY,
-        from_name: "Portofolio MomoTalk",
-        subject: `[Portofolio] ${data.subject}`,
-        name: data.name,
-        email: data.email, // otomatis jadi alamat "Reply-To"
-        message: data.message,
-      }),
-    });
-    const json = await res.json().catch(() => null);
-    if (!res.ok || !json?.success) {
-      throw new Error(json?.message || "Gagal mengirim");
+  // Access key tidak terbaca
+  if (!WEB3FORMS_KEY) {
+    console.error(
+      "VITE_WEB3FORMS_KEY kosong. Cek .env.local (satu folder dengan package.json) lalu restart npm run dev.",
+    );
+    // Di mode dev: tampilkan sebagai gagal supaya masalahnya langsung kelihatan
+    if (import.meta.env.DEV) {
+      throw new Error("Access key Web3Forms belum terbaca");
     }
+    // Di production: cadangan, buka aplikasi email dengan isi yang sudah terisi
+    const body = `Nama: ${data.name}\nEmail: ${data.email}\n\n${data.message}`;
+    window.location.href = `mailto:${EMAIL}?subject=${encodeURIComponent(
+      data.subject,
+    )}&body=${encodeURIComponent(body)}`;
     return;
   }
 
-  // Cadangan (tanpa access key): buka aplikasi email dengan isi yang sudah terisi
-  const body = `Nama: ${data.name}\nEmail: ${data.email}\n\n${data.message}`;
-  window.location.href = `mailto:${EMAIL}?subject=${encodeURIComponent(
-    data.subject,
-  )}&body=${encodeURIComponent(body)}`;
+  const res = await fetch(WEB3FORMS_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Accept: "application/json",
+    },
+    body: JSON.stringify({
+      access_key: WEB3FORMS_KEY,
+      from_name: "Portofolio MomoTalk",
+      subject: `[Portofolio] ${data.subject}`,
+      name: data.name,
+      email: data.email, // otomatis jadi alamat "Reply-To"
+      message: data.message,
+    }),
+  });
+  const json = await res.json().catch(() => null);
+  if (!res.ok || !json?.success) {
+    console.error("Web3Forms error:", res.status, json);
+    throw new Error(json?.message || "Gagal mengirim");
+  }
 }
 
 // text-base di HP (16px) mencegah iPhone memperbesar halaman saat input difokus

@@ -181,7 +181,9 @@ function AboutCard() {
         <dl className="grid flex-1 grid-cols-[auto_1fr] content-start gap-x-3 gap-y-1 text-sm">
           {ABOUT_ROWS.map(([key, value]) => (
             <Fragment key={key}>
-              <dt className="font-extrabold text-pink-500 dark:text-pink-300">{key}:</dt>
+              <dt className="font-extrabold text-pink-500 dark:text-pink-300">
+                {key}:
+              </dt>
               <dd className="font-bold">{value}</dd>
             </Fragment>
           ))}
@@ -257,9 +259,13 @@ function ContactCard() {
   return (
     <div className={`${BRUTAL} my-2 p-4`}>
       <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
-        <dt className="font-extrabold text-pink-500 dark:text-pink-300">Location:</dt>
+        <dt className="font-extrabold text-pink-500 dark:text-pink-300">
+          Location:
+        </dt>
         <dd className="font-bold">{LOCATION}</dd>
-        <dt className="font-extrabold text-pink-500 dark:text-pink-300">Email:</dt>
+        <dt className="font-extrabold text-pink-500 dark:text-pink-300">
+          Email:
+        </dt>
         <dd className="font-bold break-all">{EMAIL}</dd>
       </dl>
       <div className="mt-4 flex flex-col gap-3 border-t-4 border-black dark:border-pink-400 pt-4 sm:flex-row">
@@ -308,7 +314,7 @@ function execute(raw) {
     case "whoami":
       return {
         output: [
-          "Alfha, Mahasiswa Informatika Institut, Teknologi Kalimantan.",
+          "Alfha, Mahasiswa Informatika, Institut Teknologi Kalimantan.",
         ],
       };
     case "about":
