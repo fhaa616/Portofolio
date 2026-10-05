@@ -93,11 +93,122 @@ const EMPTY_FORM = {
   botcheck: "",
 };
 
-// Hanya terima alamat Gmail agar pengirim mudah dikenali.
-// Ubah GMAIL_ONLY menjadi false kalau mau menerima email dari domain mana pun.
-const GMAIL_ONLY = true;
-const GMAIL_REGEX = /^[a-z0-9._%+-]+@gmail\.com$/i;
-const EMAIL_HINT = "Gunakan alamat Gmail, contoh: nama@gmail.com";
+// ---------- Validasi email ----------
+// Menolak alamat asal-asalan (mis. nama@koasdaosjkdoa.com) tanpa membatasi ke satu penyedia:
+// 1) format, 2) salah ketik umum, 3) email sementara, 4) domain harus punya server email (cek DNS).
+const EMAIL_REGEX = /^[a-z0-9._%+-]+@([a-z0-9-]+(?:\.[a-z0-9-]+)+)$/i;
+
+const TYPO_FIXES = {
+  "gmial.com": "gmail.com",
+  "gmai.com": "gmail.com",
+  "gamil.com": "gmail.com",
+  "gmil.com": "gmail.com",
+  "gmail.co": "gmail.com",
+  "gmail.con": "gmail.com",
+  "yaho.com": "yahoo.com",
+  "yahooo.com": "yahoo.com",
+  "hotmial.com": "hotmail.com",
+  "outlok.com": "outlook.com",
+};
+
+const DISPOSABLE = new Set([
+  "mailinator.com",
+  "guerrillamail.com",
+  "10minutemail.com",
+  "tempmail.com",
+  "temp-mail.org",
+  "yopmail.com",
+  "trashmail.com",
+  "sharklasers.com",
+]);
+
+// Tanya DNS lewat DNS-over-HTTPS (tanpa server sendiri). Dicoba Cloudflare dulu, lalu Google.
+async function dohQuery(name, type) {
+  const urls = [
+    `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(name)}&type=${type}`,
+    `https://dns.google/resolve?name=${encodeURIComponent(name)}&type=${type}`,
+  ];
+  let lastError;
+  for (const url of urls) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 4000);
+    try {
+      const res = await fetch(url, {
+        headers: { Accept: "application/dns-json" },
+        signal: ctrl.signal,
+      });
+      if (!res.ok) throw new Error("DNS error");
+      return await res.json();
+    } catch (err) {
+      lastError = err;
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  throw lastError;
+}
+
+const domainCache = new Map();
+
+// true = domain bisa menerima email (atau tidak bisa dipastikan). false = pasti tidak ada.
+async function domainCanReceiveMail(domain) {
+  if (domainCache.has(domain)) return domainCache.get(domain);
+
+  let result = true; // jika pengecekan gagal (offline, dll.), jangan blokir pengunjung
+  try {
+    const mx = await dohQuery(domain, "MX");
+    if (mx.Status === 3) {
+      result = false; // NXDOMAIN: domain tidak terdaftar
+    } else {
+      const hasMx = (mx.Answer ?? []).some(
+        (a) => a.type === 15 && !/^\d+\s+\.?$/.test(a.data ?? ""), // abaikan "null MX"
+      );
+      if (hasMx) {
+        result = true;
+      } else {
+        // Tanpa MX, domain masih sah kalau punya alamat server (A/AAAA)
+        const a = await dohQuery(domain, "A");
+        result = (a.Answer ?? []).some((r) => r.type === 1 || r.type === 28);
+      }
+    }
+  } catch {
+    result = true;
+  }
+
+  domainCache.set(domain, result);
+  return result;
+}
+
+async function validateEmail(email) {
+  const match = EMAIL_REGEX.exec(email);
+  if (!match) {
+    return {
+      ok: false,
+      message: "Format email belum benar, contoh: nama@email.com",
+    };
+  }
+  const domain = match[1].toLowerCase();
+
+  if (TYPO_FIXES[domain]) {
+    return {
+      ok: false,
+      message: `Maksud Anda ${email.split("@")[0]}@${TYPO_FIXES[domain]}?`,
+    };
+  }
+  if (DISPOSABLE.has(domain)) {
+    return {
+      ok: false,
+      message: "Email sementara tidak diterima. Gunakan email aktif Anda.",
+    };
+  }
+  if (!(await domainCanReceiveMail(domain))) {
+    return {
+      ok: false,
+      message: `Domain "${domain}" tidak ditemukan atau tidak bisa menerima email.`,
+    };
+  }
+  return { ok: true };
+}
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -211,6 +322,7 @@ export default function MomoTalkContact() {
   const [isTyping, setIsTyping] = useState(false); // true selama pesan dikirim
   const [error, setError] = useState("");
   const [emailError, setEmailError] = useState("");
+  const [isChecking, setIsChecking] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
   const scrollRef = useRef(null);
   const emailRef = useRef(null);
@@ -248,17 +360,23 @@ export default function MomoTalkContact() {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  // Cek format saat kolom email ditinggalkan
-  const handleEmailBlur = () => {
-    const value = form.email.trim();
-    if (GMAIL_ONLY && value && !GMAIL_REGEX.test(value)) {
-      setEmailError(EMAIL_HINT);
+  // Cek email saat kolom ditinggalkan
+  const handleEmailBlur = async () => {
+    const value = form.email.trim().toLowerCase();
+    if (!value) return;
+    const result = await validateEmail(value);
+    // Abaikan hasil lama kalau pengunjung sudah mengubah isinya lagi
+    if (
+      mounted.current &&
+      emailRef.current?.value.trim().toLowerCase() === value
+    ) {
+      setEmailError(result.ok ? "" : result.message);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isTyping) return;
+    if (isTyping || isChecking) return;
 
     const data = {
       name: form.name.trim(),
@@ -268,8 +386,12 @@ export default function MomoTalkContact() {
     };
     if (!data.name || !data.email || !data.subject || !data.message) return;
 
-    if (GMAIL_ONLY && !GMAIL_REGEX.test(data.email)) {
-      setEmailError(EMAIL_HINT);
+    setIsChecking(true);
+    const check = await validateEmail(data.email);
+    setIsChecking(false);
+    if (!mounted.current) return;
+    if (!check.ok) {
+      setEmailError(check.message);
       emailRef.current?.focus();
       return;
     }
@@ -469,7 +591,7 @@ export default function MomoTalkContact() {
                     value={form.email}
                     onChange={handleChange}
                     onBlur={handleEmailBlur}
-                    placeholder={GMAIL_ONLY ? "nama@gmail.com" : "Email Anda"}
+                    placeholder="nama@email.com"
                     autoComplete="email"
                     aria-invalid={emailError ? "true" : undefined}
                     aria-describedby={emailError ? "c-email-error" : undefined}
@@ -539,11 +661,15 @@ export default function MomoTalkContact() {
 
               <button
                 type="submit"
-                disabled={isTyping}
+                disabled={isTyping || isChecking}
                 className="flex items-center justify-center gap-2 rounded-lg bg-pink-400 px-6 py-2.5 font-bold text-white transition hover:bg-pink-500 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <Send size={18} />
-                {isTyping ? "Mengirim..." : "Kirim"}
+                {isChecking
+                  ? "Memeriksa email..."
+                  : isTyping
+                    ? "Mengirim..."
+                    : "Kirim"}
               </button>
             </form>
           </div>
