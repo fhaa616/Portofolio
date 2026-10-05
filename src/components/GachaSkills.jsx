@@ -60,10 +60,11 @@ export default function GachaSkills() {
         ?.scrollIntoView({ block: "start", behavior: "instant" });
     });
   };
+
   return (
     <SectionShell id="skills" title="GACHA KEAHLIAN">
       <div className="flex min-h-96 flex-col items-center justify-center">
-        <p className="mb-6 text-center text-slate-500">
+        <p className="mb-6 text-center text-muted">
           {phase === "revealed"
             ? `Selamat, Sensei! Kamu mendapat ${SKILLS.length} skill dari hasil gacha-mu.`
             : "Klik amplop untuk membuka skill saya."}
@@ -99,7 +100,7 @@ export default function GachaSkills() {
                   className={`rounded-full border-2 border-sky-500 px-4 py-1 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500 ${
                     filter === f
                       ? "bg-sky-500 text-white"
-                      : "bg-white text-sky-500 hover:bg-sky-50"
+                      : "bg-surface text-sky-500 hover:bg-panel"
                   }`}
                 >
                   {f}
@@ -139,7 +140,7 @@ export default function GachaSkills() {
                     style={{ animationDelay: `${Math.min(i * 70, 1000)}ms` }}
                   >
                     <div
-                      className={`clip-chamfered flex h-full flex-col gap-2.5 border-4 bg-white p-5 ${s.border}`}
+                      className={`clip-chamfered flex h-full flex-col gap-2.5 border-4 bg-surface p-5 ${s.border}`}
                     >
                       <div className="flex items-center justify-between">
                         <span
@@ -164,16 +165,14 @@ export default function GachaSkills() {
                             className="h-9 w-9 shrink-0 object-contain"
                           />
                         )}
-                        <h3 className="text-xl font-extrabold text-slate-800">
+                        <h3 className="text-xl font-extrabold text-ink">
                           {skill.name}
                         </h3>
                       </div>
-                      <p className="text-xs font-bold tracking-wide text-slate-400 uppercase">
+                      <p className="text-xs font-bold tracking-wide text-faint uppercase">
                         {skill.cat}
                       </p>
-                      <p className="pb-3 text-sm text-slate-500">
-                        {skill.desc}
-                      </p>
+                      <p className="pb-3 text-sm text-muted">{skill.desc}</p>
                     </div>
                   </div>
                 );
@@ -182,7 +181,7 @@ export default function GachaSkills() {
 
             <button
               onClick={reset}
-              className="mt-12 flex items-center gap-2 rounded-full border-2 border-sky-500 bg-white px-6 py-2 font-semibold text-sky-500 transition hover:bg-sky-500 hover:text-white"
+              className="mt-12 flex items-center gap-2 rounded-full border-2 border-sky-500 bg-surface px-6 py-2 font-semibold text-sky-500 transition hover:bg-sky-500 hover:text-white"
             >
               <RotateCcw size={18} />
               Gacha Lagi

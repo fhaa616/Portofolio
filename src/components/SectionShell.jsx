@@ -1,9 +1,10 @@
 // Pembungkus bersama untuk semua section: latar grid + judul pink chamfered yang rata tengah.
 // fit = section dibuat setinggi layar dan isinya dipusatkan (untuk section yang harus muat satu layar).
+// Warna latar/grid memakai variabel CSS (lihat index.css) sehingga otomatis berganti di mode gelap.
 const GRID_STYLE = {
-  backgroundColor: "#f8fafc",
+  backgroundColor: "var(--canvas)",
   backgroundImage:
-    "linear-gradient(#e0f2fe 1px, transparent 1px), linear-gradient(90deg, #e0f2fe 1px, transparent 1px)",
+    "linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px)",
   backgroundSize: "28px 28px",
 };
 
@@ -17,7 +18,6 @@ export default function SectionShell({ id, title, children, fit = false }) {
       style={GRID_STYLE}
     >
       <div className="mx-auto w-full max-w-5xl">
-        {/* flex + justify-center = judul selalu di tengah */}
         <div className={`flex justify-center ${fit ? "mb-6" : "mb-10"}`}>
           {/* Wrapper membawa glow, elemen dalam membawa clip-path */}
           <div className="drop-shadow-[0_0_15px_rgba(244,114,182,0.8)]">

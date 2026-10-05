@@ -93,6 +93,12 @@ const EMPTY_FORM = {
   botcheck: "",
 };
 
+// Hanya terima alamat Gmail agar pengirim mudah dikenali.
+// Ubah GMAIL_ONLY menjadi false kalau mau menerima email dari domain mana pun.
+const GMAIL_ONLY = true;
+const GMAIL_REGEX = /^[a-z0-9._%+-]+@gmail\.com$/i;
+const EMAIL_HINT = "Gunakan alamat Gmail, contoh: nama@gmail.com";
+
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function deliver(data) {
@@ -128,11 +134,12 @@ async function deliver(data) {
 
 // text-base di HP (16px) mencegah iPhone memperbesar halaman saat input difokus
 const inputClass =
-  "w-full rounded-lg border-2 border-slate-200 bg-white px-3 py-1.5 text-base text-slate-800 outline-hidden transition focus:border-sky-400 sm:text-sm";
-const labelClass = "mb-0.5 block text-xs font-semibold text-slate-600";
+  "w-full rounded-lg border-2 border-line bg-surface px-3 py-1.5 text-base text-ink outline-hidden transition focus:border-sky-400 sm:text-sm";
+const inputErrorClass = inputClass.replace("border-line", "border-red-400");
+const labelClass = "mb-0.5 block text-xs font-semibold text-ink-soft";
 
 const socialRowClass =
-  "group flex w-full items-center gap-3 border-2 border-slate-200 bg-white p-1.5 pr-3 text-left transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500";
+  "group flex w-full items-center gap-3 border-2 border-line bg-surface p-1.5 pr-3 text-left transition hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-500";
 
 function SocialRow({ social, copied, onCopy }) {
   const { Icon, label, handle, href, color, hover } = social;
@@ -145,18 +152,16 @@ function SocialRow({ social, copied, onCopy }) {
         <Icon size={18} />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block text-[10px] leading-tight font-bold tracking-wide text-slate-400 uppercase">
+        <span className="block text-[10px] leading-tight font-bold tracking-wide text-faint uppercase">
           {label}
         </span>
-        <span className="block truncate text-sm font-semibold text-slate-800">
+        <span className="block truncate text-sm font-semibold text-ink">
           {handle}
         </span>
       </span>
       <span
         className={`flex shrink-0 items-center gap-1 text-xs font-bold transition ${
-          copied
-            ? "text-emerald-500"
-            : "text-slate-300 group-hover:text-slate-500"
+          copied ? "text-emerald-500" : "text-faint group-hover:text-muted"
         }`}
       >
         {href ? (
@@ -205,8 +210,10 @@ export default function MomoTalkContact() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [isTyping, setIsTyping] = useState(false); // true selama pesan dikirim
   const [error, setError] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [copiedId, setCopiedId] = useState(null);
   const scrollRef = useRef(null);
+  const emailRef = useRef(null);
   const copyTimer = useRef(null);
   const mounted = useRef(true);
 
@@ -237,7 +244,16 @@ export default function MomoTalkContact() {
   };
 
   const handleChange = (e) => {
+    if (e.target.name === "email") setEmailError("");
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  // Cek format saat kolom email ditinggalkan
+  const handleEmailBlur = () => {
+    const value = form.email.trim();
+    if (GMAIL_ONLY && value && !GMAIL_REGEX.test(value)) {
+      setEmailError(EMAIL_HINT);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -246,11 +262,17 @@ export default function MomoTalkContact() {
 
     const data = {
       name: form.name.trim(),
-      email: form.email.trim(),
+      email: form.email.trim().toLowerCase(),
       subject: form.subject.trim(),
       message: form.message.trim(),
     };
     if (!data.name || !data.email || !data.subject || !data.message) return;
+
+    if (GMAIL_ONLY && !GMAIL_REGEX.test(data.email)) {
+      setEmailError(EMAIL_HINT);
+      emailRef.current?.focus();
+      return;
+    }
 
     setError("");
     setMessages((prev) => [
@@ -303,11 +325,11 @@ export default function MomoTalkContact() {
       <div className="grid gap-6 lg:grid-cols-5">
         {/* Informasi kontak */}
         <div className="self-start drop-shadow-[0_0_15px_rgba(244,114,182,0.6)] lg:col-span-2">
-          <div className="clip-chamfered border-4 border-pink-400 bg-white p-5 pb-8">
-            <h3 className="text-lg font-extrabold text-slate-800">
+          <div className="clip-chamfered border-4 border-pink-400 bg-surface p-5 pb-8">
+            <h3 className="text-lg font-extrabold text-ink">
               Informasi Kontak
             </h3>
-            <p className="mb-4 text-sm text-slate-500">
+            <p className="mb-4 text-sm text-muted">
               Uhe~ Jangan ragu menyapa, Sensei!
             </p>
 
@@ -320,20 +342,18 @@ export default function MomoTalkContact() {
                     <Icon size={18} />
                   </span>
                   <div className="min-w-0">
-                    <p className="text-[10px] leading-tight font-bold tracking-wide text-slate-400 uppercase">
+                    <p className="text-[10px] leading-tight font-bold tracking-wide text-faint uppercase">
                       {label}
                     </p>
                     {href ? (
                       <a
                         href={href}
-                        className="text-sm font-semibold break-all text-slate-800 transition hover:text-sky-500"
+                        className="text-sm font-semibold break-all text-ink transition hover:text-sky-500"
                       >
                         {value}
                       </a>
                     ) : (
-                      <p className="text-sm font-semibold text-slate-800">
-                        {value}
-                      </p>
+                      <p className="text-sm font-semibold text-ink">{value}</p>
                     )}
                   </div>
                 </li>
@@ -341,8 +361,8 @@ export default function MomoTalkContact() {
             </ul>
 
             {/* Media sosial */}
-            <div className="mt-4 border-t-2 border-dashed border-pink-200 pt-4">
-              <p className="mb-2 text-sm font-bold text-slate-600">
+            <div className="mt-4 border-t-2 border-dashed border-pink-200 pt-4 dark:border-pink-400/30">
+              <p className="mb-2 text-sm font-bold text-ink-soft">
                 Atau temui Fhaa di sini
               </p>
               <ul className="flex flex-col gap-2">
@@ -366,7 +386,7 @@ export default function MomoTalkContact() {
 
         {/* Kirim pesan (jendela MomoTalk) */}
         <div className="drop-shadow-[0_8px_20px_rgba(14,165,233,0.25)] lg:col-span-3">
-          <div className="clip-chamfered overflow-hidden border-4 border-sky-400 bg-white">
+          <div className="clip-chamfered overflow-hidden border-4 border-sky-400 bg-surface">
             {/* Header */}
             <header className="flex items-center gap-3 bg-sky-500 px-4 py-2.5 text-white">
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-pink-300 font-bold text-white">
@@ -381,7 +401,7 @@ export default function MomoTalkContact() {
             {/* History chat */}
             <div
               ref={scrollRef}
-              className="flex h-28 flex-col gap-2 overflow-y-auto bg-slate-100 p-3"
+              className="flex h-28 flex-col gap-2 overflow-y-auto bg-panel p-3"
             >
               {messages.map((m) =>
                 m.sender === "user" ? (
@@ -397,7 +417,7 @@ export default function MomoTalkContact() {
                   </div>
                 ) : (
                   <div key={m.id} className="flex justify-start">
-                    <p className="max-w-[80%] rounded-2xl rounded-bl-sm bg-white px-3 py-1.5 text-sm text-slate-700 shadow-sm">
+                    <p className="max-w-[80%] rounded-2xl rounded-bl-sm bg-surface px-3 py-1.5 text-sm text-ink-soft shadow-sm">
                       {m.text}
                     </p>
                   </div>
@@ -406,7 +426,7 @@ export default function MomoTalkContact() {
 
               {isTyping && (
                 <div className="flex justify-start">
-                  <p className="animate-pulse rounded-2xl rounded-bl-sm bg-white px-3 py-1.5 text-sm text-slate-400 italic shadow-sm">
+                  <p className="animate-pulse rounded-2xl rounded-bl-sm bg-surface px-3 py-1.5 text-sm text-faint italic shadow-sm">
                     Fhaa is typing...
                   </p>
                 </div>
@@ -416,7 +436,7 @@ export default function MomoTalkContact() {
             {/* Form */}
             <form
               onSubmit={handleSubmit}
-              className="flex flex-col gap-2 border-t-2 border-sky-100 bg-white p-3 pb-6"
+              className="flex flex-col gap-2 border-t-2 border-line bg-surface p-3 pb-6"
             >
               <div className="grid gap-2 sm:grid-cols-2">
                 <div>
@@ -441,15 +461,29 @@ export default function MomoTalkContact() {
                   </label>
                   <input
                     id="c-email"
+                    ref={emailRef}
                     name="email"
                     type="email"
+                    inputMode="email"
                     required
                     value={form.email}
                     onChange={handleChange}
-                    placeholder="Email Anda"
+                    onBlur={handleEmailBlur}
+                    placeholder={GMAIL_ONLY ? "nama@gmail.com" : "Email Anda"}
                     autoComplete="email"
-                    className={inputClass}
+                    aria-invalid={emailError ? "true" : undefined}
+                    aria-describedby={emailError ? "c-email-error" : undefined}
+                    className={emailError ? inputErrorClass : inputClass}
                   />
+                  {emailError && (
+                    <p
+                      id="c-email-error"
+                      role="alert"
+                      className="mt-0.5 text-xs font-semibold text-red-500"
+                    >
+                      {emailError}
+                    </p>
+                  )}
                 </div>
               </div>
 

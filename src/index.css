@@ -1,15 +1,71 @@
 @import "tailwindcss";
 
+/* Mode gelap diaktifkan lewat class "dark" di <html> */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ===== Warna tema (terang) ===== */
+:root {
+  --canvas: #f8fafc;
+  --surface: #ffffff;
+  --panel: #f1f5f9;
+  --ink: #1e293b;
+  --ink-soft: #475569;
+  --muted: #64748b;
+  --faint: #94a3b8;
+  --line: #e2e8f0;
+  --grid: #e0f2fe;
+  --halo-edge: #a58b9b;
+  --halo-fill: #efe3ea;
+  --halo-glow: rgba(165, 139, 155, 0.55);
+}
+
+/* ===== Warna tema (gelap) ===== */
+.dark {
+  color-scheme: dark;
+  --canvas: #0b1020;
+  --surface: #131a33;
+  --panel: #0f1630;
+  --ink: #e8ecff;
+  --ink-soft: #c3cbe8;
+  --muted: #9aa5c8;
+  --faint: #6f7aa3;
+  --line: #2a3562;
+  --grid: #18214a;
+  --halo-edge: #f472b6;
+  --halo-fill: #ffffff;
+  --halo-glow: rgba(244, 114, 182, 0.85);
+}
+
+/* Jadikan variabel di atas sebagai class Tailwind: bg-surface, text-ink, border-line, dst. */
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-panel: var(--panel);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+}
+
 html {
   scroll-behavior: smooth;
 }
 
 body {
-  background-color: #f8fafc;
-  color: #1e293b;
+  background-color: var(--canvas);
+  color: var(--ink);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Efek lingkaran saat ganti tema */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
 /* Sudut miring ala UI game sci-fi */
 .clip-chamfered {
   clip-path: polygon(
@@ -74,33 +130,13 @@ body {
   animation: pop-in 0.5s ease-out both;
 }
 
-/* Pita construction tape kuning-hitam */
-.construction-tape {
-  height: 20px;
-  background: repeating-linear-gradient(
-    45deg,
-    #facc15 0 20px,
-    #0f172a 20px 40px
-  );
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-  .animate-shake,
-  .animate-bounce,
-  .animate-pulse,
-  .animate-pop-in {
-    animation: none !important;
-  }
-}
-
 /* ===== Animasi section Sertifikat ===== */
 
 /* Pita kuning-hitam yang bergerak */
 @keyframes tape-scroll {
-  to { background-position: 40px 0; }
+  to {
+    background-position: 40px 0;
+  }
 }
 .tape-move {
   background: linear-gradient(
@@ -118,8 +154,13 @@ body {
 
 /* Kunci inggris bergoyang */
 @keyframes wrench-swing {
-  0%, 100% { transform: rotate(-25deg); }
-  50% { transform: rotate(25deg); }
+  0%,
+  100% {
+    transform: rotate(-25deg);
+  }
+  50% {
+    transform: rotate(25deg);
+  }
 }
 .animate-wrench {
   transform-origin: 20% 80%;
@@ -128,9 +169,17 @@ body {
 
 /* Huruf Zzz melayang naik */
 @keyframes zzz-float {
-  0% { opacity: 0; transform: translate(0, 8px) scale(0.8); }
-  25% { opacity: 1; }
-  100% { opacity: 0; transform: translate(14px, -28px) scale(1.2); }
+  0% {
+    opacity: 0;
+    transform: translate(0, 8px) scale(0.8);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(14px, -28px) scale(1.2);
+  }
 }
 .animate-zzz {
   animation: zzz-float 2.4s ease-out infinite;
@@ -138,17 +187,47 @@ body {
 
 /* Efek glitch pada timer (diputar saat dimulai ulang) */
 @keyframes glitch {
-  0%, 100% { transform: translate(0); text-shadow: none; }
-  20% { transform: translate(-3px, 1px); text-shadow: 2px 0 #f472b6, -2px 0 #38bdf8; }
-  40% { transform: translate(3px, -1px); text-shadow: -2px 0 #f472b6, 2px 0 #38bdf8; }
-  60% { transform: translate(-2px, 0); text-shadow: 2px 0 #f472b6, -2px 0 #38bdf8; }
-  80% { transform: translate(2px, 1px); text-shadow: none; }
+  0%,
+  100% {
+    transform: translate(0);
+    text-shadow: none;
+  }
+  20% {
+    transform: translate(-3px, 1px);
+    text-shadow:
+      2px 0 #f472b6,
+      -2px 0 #38bdf8;
+  }
+  40% {
+    transform: translate(3px, -1px);
+    text-shadow:
+      -2px 0 #f472b6,
+      2px 0 #38bdf8;
+  }
+  60% {
+    transform: translate(-2px, 0);
+    text-shadow:
+      2px 0 #f472b6,
+      -2px 0 #38bdf8;
+  }
+  80% {
+    transform: translate(2px, 1px);
+    text-shadow: none;
+  }
 }
 .animate-glitch {
   animation: glitch 0.6s steps(2, end) 1;
 }
 
+/* ===== Kurangi gerakan (preferensi aksesibilitas) ===== */
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .animate-shake,
+  .animate-bounce,
+  .animate-pulse,
+  .animate-pop-in,
   .tape-move,
   .animate-wrench,
   .animate-zzz,

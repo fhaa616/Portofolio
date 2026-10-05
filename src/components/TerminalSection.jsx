@@ -35,15 +35,16 @@ const FILES = {
     "-----            ------    ----------",
     "Python           SSR       Scripting, otomasi, dan olah data",
     "JavaScript       SSR       React, Vite, dan web interaktif",
+    "C++              Normal    Struktur data dan algoritma",
   ],
   "education.txt": [
     "Riwayat Pendidikan:",
     "-------------------",
-    "[ 2026 - Sekarang ] Mahasiswa Program Studi Informatika",
+    "[ 2026 - Sekarang ] S1 Informatika",
     "                    Institut Teknologi Kalimantan (ITK), Balikpapan",
     "",
     "[ 2023 - 2026     ] Sekolah Menengah Kejuruan (SMK)",
-    "                    Jurusan [Pengembangan Perangkat Lunak dan Gim], [SMKN 7 Samarinda]",
+    "                    Jurusan [Pengambangan Perangkat Lunak dan Gim], [SMKN 7 Samarinda]",
   ],
   "projects.txt": [
     "[1] Portofolio interaktif  (React, Vite, Tailwind CSS, lucide-react)",
@@ -133,25 +134,25 @@ const SIDEBAR = [
     key: "ls",
     label: "Jalankan ls",
     Icon: Folder,
-    style: "bg-white text-sky-500",
+    style: "bg-surface text-sky-500",
   },
   {
     key: "gacha",
     label: "Jalankan gacha",
     Icon: Gift,
-    style: "bg-sky-100 text-sky-600",
+    style: "bg-sky-100 text-sky-600 dark:bg-sky-400/15 dark:text-sky-300",
   },
   {
     key: "clear",
     label: "Bersihkan layar (clear)",
     Icon: Trash2,
-    style: "bg-pink-100 text-pink-500",
+    style: "bg-pink-100 text-pink-500 dark:bg-pink-400/15 dark:text-pink-300",
   },
 ];
 
 // ---------- Data & komponen kartu (output berupa JSX) ----------
 const BRUTAL =
-  "border-4 border-black bg-white text-slate-900 shadow-[6px_6px_0_0_#000]";
+  "border-4 border-black bg-surface text-ink shadow-[6px_6px_0_0_#000] dark:border-pink-400 dark:shadow-[6px_6px_0_0_#f472b6]";
 
 const ABOUT_ROWS = [
   ["OS", "Alfha OS LTS"],
@@ -175,18 +176,18 @@ function AboutCard() {
         <img
           src={hoshinoAvatar}
           alt="Takanashi Hoshino"
-          className="h-24 w-24 shrink-0 border-2 border-black object-cover sm:h-32 sm:w-32"
+          className="h-24 w-24 shrink-0 border-2 border-black object-cover sm:h-32 sm:w-32 dark:border-pink-400"
         />
         <dl className="grid flex-1 grid-cols-[auto_1fr] content-start gap-x-3 gap-y-1 text-sm">
           {ABOUT_ROWS.map(([key, value]) => (
             <Fragment key={key}>
-              <dt className="font-extrabold text-pink-500">{key}:</dt>
+              <dt className="font-extrabold text-pink-500 dark:text-pink-300">{key}:</dt>
               <dd className="font-bold">{value}</dd>
             </Fragment>
           ))}
         </dl>
       </div>
-      <p className="mt-4 border-t-4 border-black pt-3 text-sm font-bold">
+      <p className="mt-4 border-t-4 border-black dark:border-pink-400 pt-3 text-sm font-bold">
         "Uhe~ Selamat datang, Sensei! Aku Awang Alfha Fairuz Amien, mahasiswa
         Informatika ITK yang punya passion besar di dunia frontend
         development—plus sedikit racikan backend tipis-tipis di balik layar biar
@@ -210,7 +211,7 @@ function SkillsCard() {
         return (
           <div
             key={skill.name}
-            className="flex flex-col gap-1 border-4 border-black bg-white p-2.5 text-slate-900 shadow-[4px_4px_0_0_#000]"
+            className="flex flex-col gap-1 border-4 border-black bg-surface p-2.5 text-ink shadow-[4px_4px_0_0_#000] dark:border-pink-400 dark:shadow-[4px_4px_0_0_#f472b6]"
           >
             <div className="flex items-center justify-between gap-1">
               <span
@@ -234,7 +235,7 @@ function SkillsCard() {
               </div>
             </div>
             <p className="text-base leading-tight font-black">{skill.name}</p>
-            <p className="text-xs font-bold tracking-wide text-slate-400 uppercase">
+            <p className="text-xs font-bold tracking-wide text-faint uppercase">
               {skill.cat}
             </p>
           </div>
@@ -245,7 +246,7 @@ function SkillsCard() {
 }
 
 const BUTTON_BRUTAL =
-  "flex items-center justify-center gap-2 border-4 border-black px-4 py-2 text-sm font-extrabold text-slate-900 shadow-[4px_4px_0_0_#000] transition hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none active:translate-x-1 active:translate-y-1";
+  "flex items-center justify-center gap-2 border-4 border-black px-4 py-2 text-sm font-extrabold text-slate-900 shadow-[4px_4px_0_0_#000] dark:border-white dark:shadow-[4px_4px_0_0_#f472b6] transition hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none active:translate-x-1 active:translate-y-1";
 
 function ContactCard() {
   const goToMomoTalk = (e) => {
@@ -256,12 +257,12 @@ function ContactCard() {
   return (
     <div className={`${BRUTAL} my-2 p-4`}>
       <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
-        <dt className="font-extrabold text-pink-500">Location:</dt>
+        <dt className="font-extrabold text-pink-500 dark:text-pink-300">Location:</dt>
         <dd className="font-bold">{LOCATION}</dd>
-        <dt className="font-extrabold text-pink-500">Email:</dt>
+        <dt className="font-extrabold text-pink-500 dark:text-pink-300">Email:</dt>
         <dd className="font-bold break-all">{EMAIL}</dd>
       </dl>
-      <div className="mt-4 flex flex-col gap-3 border-t-4 border-black pt-4 sm:flex-row">
+      <div className="mt-4 flex flex-col gap-3 border-t-4 border-black dark:border-pink-400 pt-4 sm:flex-row">
         <a
           href={`mailto:${EMAIL}`}
           onClick={(e) => e.stopPropagation()}
@@ -307,7 +308,7 @@ function execute(raw) {
     case "whoami":
       return {
         output: [
-          "Alfha, Mahasiswa Informatika, Institut Teknologi Kalimantan.",
+          "Alfha, Mahasiswa Informatika Institut, Teknologi Kalimantan.",
         ],
       };
     case "about":
@@ -629,7 +630,7 @@ export default function TerminalSection() {
                 key={c}
                 type="button"
                 onClick={() => handleShortcut(c)}
-                className="rounded-full border-2 border-sky-500 bg-white px-3 py-0.5 font-mono text-xs font-semibold text-sky-600 transition hover:bg-sky-500 hover:text-white sm:px-4 sm:py-1 sm:text-sm"
+                className="rounded-full border-2 border-sky-500 bg-surface px-3 py-0.5 font-mono text-xs font-semibold text-sky-600 transition dark:text-sky-300 hover:bg-sky-500 hover:text-white sm:px-4 sm:py-1 sm:text-sm"
               >
                 {c}
               </button>

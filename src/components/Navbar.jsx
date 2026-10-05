@@ -1,11 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { Menu, X, MessageCircle } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import NameTag from "./NameTag";
-
-const CHAMFER_SM = {
-  clipPath:
-    "polygon(0 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%)",
-};
+import ThemeToggle from "./ThemeToggle";
 
 // Warna per menu mengikuti palet Hoshino: pink, biru, oranye
 const NAV = [
@@ -18,8 +14,7 @@ const NAV = [
 
 const TONE = {
   pink: {
-    hover:
-      "hover:bg-pink-400 hover:drop-shadow-[0_0_10px_rgba(244,114,182,0.8)]",
+    hover: "hover:bg-pink-400 hover:drop-shadow-[0_0_10px_rgba(244,114,182,0.8)]",
     on: "bg-pink-400",
   },
   sky: {
@@ -27,8 +22,7 @@ const TONE = {
     on: "bg-sky-400",
   },
   orange: {
-    hover:
-      "hover:bg-orange-400 hover:drop-shadow-[0_0_10px_rgba(251,146,60,0.8)]",
+    hover: "hover:bg-orange-400 hover:drop-shadow-[0_0_10px_rgba(251,146,60,0.8)]",
     on: "bg-orange-400",
   },
 };
@@ -86,20 +80,20 @@ export default function Navbar() {
 
   const linkClass = (item) => {
     const isActive = active === item.id;
-    return `block px-4 py-2 text-sm font-extrabold tracking-wide transition hover:-translate-y-0.5 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-800 ${
+    return `block px-4 py-2 text-sm font-extrabold tracking-wide transition hover:-translate-y-0.5 hover:text-slate-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400 ${
       TONE[item.tone].hover
-    } ${isActive ? `${TONE[item.tone].on} text-slate-900` : "text-slate-700"}`;
+    } ${isActive ? `${TONE[item.tone].on} text-slate-900` : "text-ink-soft"}`;
   };
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b-4 border-sky-400 bg-white/90 shadow-[0_4px_14px_rgba(14,165,233,0.25)] backdrop-blur">
+    <header className="fixed inset-x-0 top-0 z-50 border-b-4 border-sky-400 bg-surface/90 shadow-[0_4px_14px_rgba(14,165,233,0.25)] backdrop-blur dark:shadow-[0_4px_22px_rgba(56,189,248,0.3)]">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-6">
         {/* Name tag */}
         <button
           type="button"
           onClick={() => goTo("hero")}
           aria-label="Kembali ke atas"
-          className="transition hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-slate-800"
+          className="transition hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-400"
         >
           <NameTag />
         </button>
@@ -124,24 +118,28 @@ export default function Navbar() {
             ))}
           </ul>
         </nav>
-        {/* Tombol hamburger (HP) */}
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          aria-expanded={open}
-          aria-controls="mobile-menu"
-          aria-label={open ? "Tutup menu" : "Buka menu"}
-          className="flex h-10 w-10 items-center justify-center border-2 border-sky-400 text-sky-500 transition hover:bg-sky-400 hover:text-slate-900 md:hidden"
-        >
-          {open ? <X size={22} /> : <Menu size={22} />}
-        </button>
+
+        {/* Tombol tema + hamburger (HP) */}
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-controls="mobile-menu"
+            aria-label={open ? "Tutup menu" : "Buka menu"}
+            className="flex h-10 w-10 items-center justify-center border-2 border-sky-400 text-sky-500 transition hover:bg-sky-400 hover:text-slate-900 md:hidden"
+          >
+            {open ? <X size={22} /> : <Menu size={22} />}
+          </button>
+        </div>
       </div>
 
       {/* Menu HP */}
       {open && (
         <div
           id="mobile-menu"
-          className="border-t-2 border-sky-100 bg-white px-6 py-4 md:hidden"
+          className="border-t-2 border-line bg-surface px-6 py-4 md:hidden"
         >
           <ul className="flex flex-col gap-2">
             {NAV.map((item) => (
@@ -160,14 +158,6 @@ export default function Navbar() {
               </li>
             ))}
           </ul>
-          <button
-            type="button"
-            onClick={() => goTo("contact")}
-            className="mt-4 flex w-full items-center justify-center gap-2 bg-pink-400 py-3 text-sm font-extrabold tracking-wide text-white transition hover:bg-orange-400 hover:text-slate-900"
-          >
-            <MessageCircle size={16} />
-            HUBUNGI SAYA
-          </button>
         </div>
       )}
 

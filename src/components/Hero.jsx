@@ -2,18 +2,16 @@ import { ChevronDown } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
 /*  HALO HOSHINO                                                       */
-/*  Sesuai gambar: cincin luar & tengah TERPUTUS di sisi kiri-kanan,   */
-/*  cincin dalam tebal berlubang, dan garis horizontal di tiap sisi.   */
-/*  Gaya outline: tiap bentuk digambar 2x (garis tepi gelap + isi      */
-/*  terang) supaya terlihat seperti kontur pada gambar referensi.      */
+/*  Cincin luar & tengah TERPUTUS di sisi kiri-kanan, cincin dalam     */
+/*  tebal berlubang, dan garis horizontal di tiap sisi.                */
+/*  Gaya outline: tiap bentuk digambar 2x (garis tepi + isi terang).   */
+/*  Warna dari variabel CSS (index.css):                               */
+/*   - mode terang : mauve keabu-abuan                                 */
+/*   - mode gelap  : halo putih berkontur pink bercahaya (seperti ref) */
 /* ------------------------------------------------------------------ */
 
 const CX = 170;
 const CY = 110;
-
-// Warna diambil dari gambar referensi (mauve keabu-abuan)
-const EDGE = "#a58b9b";
-const FILL = "#efe3ea";
 
 // Busur lingkaran. Sudut dalam derajat, 0 = kanan, 90 = atas (seperti matematika).
 function arc(r, from, to) {
@@ -48,10 +46,18 @@ const WINGS = {
 function Outlined({ children }) {
   return (
     <>
-      <g stroke={EDGE} strokeLinecap="round" fill="none" data-layer="edge">
+      <g
+        strokeLinecap="round"
+        fill="none"
+        style={{ stroke: "var(--halo-edge)" }}
+      >
         {children(3.2)}
       </g>
-      <g stroke={FILL} strokeLinecap="round" fill="none" data-layer="fill">
+      <g
+        strokeLinecap="round"
+        fill="none"
+        style={{ stroke: "var(--halo-fill)" }}
+      >
         {children(0)}
       </g>
     </>
@@ -63,7 +69,8 @@ function HoshinoHalo() {
     <svg
       viewBox="0 20 340 180"
       aria-hidden="true"
-      className="h-auto w-full overflow-visible drop-shadow-[0_0_14px_rgba(165,139,155,0.55)]"
+      className="h-auto w-full overflow-visible"
+      style={{ filter: "drop-shadow(0 0 14px var(--halo-glow))" }}
     >
       {/* Orbit tipis berputar pelan, kesan "energi" di sekitar halo */}
       <circle
@@ -71,12 +78,12 @@ function HoshinoHalo() {
         cy={CY}
         r="100"
         fill="none"
-        stroke={EDGE}
         strokeWidth="1.5"
         strokeDasharray="3 11"
         strokeLinecap="round"
         className="halo-orbit"
         opacity="0.7"
+        style={{ stroke: "var(--halo-edge)" }}
       />
 
       {/* Cincin luar & tengah (terputus di sisi) */}
@@ -157,7 +164,7 @@ export default function Hero() {
   return (
     <section
       id="hero"
-      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-50 px-6 pt-28 pb-10"
+      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-canvas px-6 pt-28 pb-10"
     >
       <style>{`
         /* ---------- Halo ---------- */
@@ -197,6 +204,42 @@ export default function Hero() {
         @keyframes wing-right {
           0%, 100% { transform: translateX(0);  opacity: 1; }
           50%      { transform: translateX(9px); opacity: .55; }
+        }
+
+        /* ---------- Langit malam (hanya mode gelap) ---------- */
+        .night-stars, .night-stars::after {
+          position: absolute;
+          inset: 0;
+          pointer-events: none;
+          background-repeat: no-repeat;
+        }
+        .night-stars {
+          background-image:
+            radial-gradient(1.6px 1.6px at 8% 14%, #fff 50%, transparent 52%),
+            radial-gradient(1.2px 1.2px at 21% 62%, #bae6fd 50%, transparent 52%),
+            radial-gradient(1.8px 1.8px at 33% 28%, #fff 50%, transparent 52%),
+            radial-gradient(1.2px 1.2px at 47% 80%, #fbcfe8 50%, transparent 52%),
+            radial-gradient(1.6px 1.6px at 62% 18%, #fff 50%, transparent 52%),
+            radial-gradient(1.2px 1.2px at 74% 70%, #bae6fd 50%, transparent 52%),
+            radial-gradient(1.8px 1.8px at 88% 36%, #fff 50%, transparent 52%),
+            radial-gradient(1.2px 1.2px at 94% 84%, #fbcfe8 50%, transparent 52%);
+          animation: stars-twinkle 4s ease-in-out infinite alternate;
+        }
+        .night-stars::after {
+          content: '';
+          background-image:
+            radial-gradient(1.4px 1.4px at 14% 40%, #fff 50%, transparent 52%),
+            radial-gradient(1.8px 1.8px at 28% 90%, #fbcfe8 50%, transparent 52%),
+            radial-gradient(1.2px 1.2px at 41% 12%, #bae6fd 50%, transparent 52%),
+            radial-gradient(1.6px 1.6px at 56% 52%, #fff 50%, transparent 52%),
+            radial-gradient(1.2px 1.2px at 69% 8%, #fff 50%, transparent 52%),
+            radial-gradient(1.8px 1.8px at 81% 58%, #bae6fd 50%, transparent 52%),
+            radial-gradient(1.4px 1.4px at 97% 20%, #fff 50%, transparent 52%);
+          animation: stars-twinkle 5s ease-in-out 1.5s infinite alternate-reverse;
+        }
+        @keyframes stars-twinkle {
+          from { opacity: .25; }
+          to   { opacity: 1; }
         }
 
         /* ---------- Teks ---------- */
@@ -266,7 +309,8 @@ export default function Hero() {
         /* ---------- Aksesibilitas: hormati preferensi kurangi gerakan ---------- */
         @media (prefers-reduced-motion: reduce) {
           .halo-ring, .halo-orbit, .halo-wing-left, .halo-wing-right,
-          .halo-float, .accent-shine, .cta-btn::after, .cta-icon, .spark {
+          .halo-float, .accent-shine, .cta-btn::after, .cta-icon, .spark,
+          .night-stars, .night-stars::after {
             animation: none !important;
           }
           .halo-enter, .word-reveal, .badge-in, .cta-in {
@@ -279,8 +323,9 @@ export default function Hero() {
 
       {/* Dekorasi latar */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-24 right-[12%] h-40 w-40 animate-bounce rounded-full bg-sky-100 [animation-duration:4s]" />
-        <div className="absolute -bottom-16 left-[10%] h-32 w-32 animate-pulse rounded-full bg-pink-100" />
+        <div className="night-stars hidden dark:block" />
+        <div className="absolute -top-24 right-[12%] h-40 w-40 animate-bounce rounded-full bg-sky-100 [animation-duration:4s] dark:bg-sky-400/10" />
+        <div className="absolute -bottom-16 left-[10%] h-32 w-32 animate-pulse rounded-full bg-pink-100 dark:bg-pink-400/10" />
       </div>
 
       <div className="relative z-10 flex flex-col items-center text-center">
@@ -289,15 +334,15 @@ export default function Hero() {
           {/* Halo: wrapper luar = animasi masuk, wrapper dalam = melayang */}
           <div
             aria-hidden="true"
-            className="halo-enter pointer-events-none absolute top-1/2 left-1/2 w-[min(95vw,760px)]"
+            className="halo-enter pointer-events-none absolute top-1/2 left-1/2 w-[min(95vw,760px,100vh)]"
           >
             <div className="halo-float">
               <HoshinoHalo />
             </div>
           </div>
 
-          {/* Nama satu baris. Ukuran mengikuti lebar layar (min 1.05rem, maks 3rem) supaya tidak pernah turun baris */}
-          <h1 className="relative text-[clamp(1.05rem,4.4vw,3rem)] leading-tight font-black tracking-tight whitespace-nowrap text-slate-800 uppercase">
+          {/* Nama satu baris. Ukuran mengikuti lebar layar supaya tidak pernah turun baris */}
+          <h1 className="relative text-[clamp(1.05rem,4.4vw,3rem)] leading-tight font-black tracking-tight whitespace-nowrap text-ink uppercase">
             {NAME_LINES.map((line, li) => (
               <span key={li} className="block">
                 {line.map(({ text, accent }) => {
@@ -340,15 +385,15 @@ export default function Hero() {
           </div>
         </div>
 
-        <p className="badge-in relative mt-8 border-2 border-sky-500 bg-white px-5 py-1.5 text-base font-bold text-sky-600 sm:text-xl">
-          Programmer | Web Developer | UI/UX Enthusiast
+        <p className="badge-in relative mt-8 border-2 border-sky-500 bg-surface px-5 py-1.5 text-base font-bold text-sky-600 sm:text-xl dark:text-sky-300">
+          Mahasiswa Informatika ITK
         </p>
 
         {/* Wrapper membawa glow, elemen dalam membawa clip-path */}
         <div className="cta-in relative mt-8 inline-block drop-shadow-[0_6px_14px_rgba(14,165,233,0.45)]">
           <button
             onClick={handleExplore}
-            className="cta-btn clip-chamfered flex items-center gap-2 bg-sky-500 py-3.5 pr-11 pl-7 text-base font-bold text-white transition hover:bg-sky-600 focus-visible:-outline-offset-4 focus-visible:outline-4 focus-visible:outline-slate-800 sm:text-lg"
+            className="cta-btn clip-chamfered flex items-center gap-2 bg-sky-500 py-3.5 pr-11 pl-7 text-base font-bold text-white transition hover:bg-sky-600 focus-visible:-outline-offset-4 focus-visible:outline-4 focus-visible:outline-slate-800 sm:text-lg dark:focus-visible:outline-white"
           >
             Mulai Eksplorasi
             <ChevronDown size={22} className="cta-icon" />
